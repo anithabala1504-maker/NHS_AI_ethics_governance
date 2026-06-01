@@ -1,0 +1,418 @@
+
+<h2 class="sr-only">NHS AI Ethics and Governance Master Checklist — interactive tool covering 10 domains derived from AI Airlock, NHS England IG Guidance, and the Code of Conduct for Data-Driven Health and Care Technology</h2>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.wrap{padding:1rem 0}
+.topbar{display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;flex-wrap:wrap}
+.topbar h1{font-size:18px;font-weight:500;color:var(--color-text-primary);flex:1;min-width:200px}
+.badge{font-size:11px;padding:3px 10px;border-radius:var(--border-radius-md);font-weight:500}
+.badge-nhs{background:#003087;color:#fff}
+.progress-bar-wrap{background:var(--color-background-secondary);border-radius:4px;height:6px;width:180px;overflow:hidden}
+.progress-bar{height:6px;background:#003087;border-radius:4px;transition:width .4s}
+.score-text{font-size:13px;color:var(--color-text-secondary);min-width:60px}
+
+.nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem}
+.nav-btn{font-size:12px;padding:5px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;transition:all .15s}
+.nav-btn.active{background:#003087;color:#fff;border-color:#003087}
+.nav-btn:hover:not(.active){background:var(--color-background-secondary)}
+
+.section{display:none}
+.section.visible{display:block}
+
+.section-header{margin-bottom:1rem}
+.section-header h2{font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.section-header p{font-size:13px;color:var(--color-text-secondary);line-height:1.5}
+
+.item{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px 14px;margin-bottom:8px;background:var(--color-background-primary);transition:border-color .15s}
+.item:hover{border-color:var(--color-border-secondary)}
+.item-top{display:flex;align-items:flex-start;gap:10px}
+.item-check{width:20px;height:20px;border-radius:4px;border:0.5px solid var(--color-border-secondary);cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s;background:var(--color-background-primary)}
+.item-check.checked{background:#003087;border-color:#003087}
+.item-check.checked::after{content:'✓';color:#fff;font-size:12px;line-height:1}
+.item-check.na{background:var(--color-background-secondary);border-color:var(--color-border-secondary)}
+.item-check.na::after{content:'N/A';color:var(--color-text-tertiary);font-size:9px;font-weight:500}
+.item-body{flex:1}
+.item-id{font-size:11px;color:var(--color-text-tertiary);margin-bottom:2px;font-family:var(--font-mono)}
+.item-title{font-size:14px;color:var(--color-text-primary);line-height:1.5;margin-bottom:4px}
+.item-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.pill{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+.pill-mandatory{background:#FAECE7;color:#993C1D}
+.pill-recommended{background:#EAF3DE;color:#3B6D11}
+.pill-legal{background:#E6F1FB;color:#185FA5}
+.pill-ethics{background:#EEEDFE;color:#534AB7}
+.pill-clinical{background:#FAEEDA;color:#854F0B}
+.pill-risk-high{background:#FCEBEB;color:#A32D2D}
+.pill-risk-med{background:#FAEEDA;color:#854F0B}
+.pill-risk-low{background:#EAF3DE;color:#3B6D11}
+.source-ref{font-size:11px;color:var(--color-text-tertiary);border-left:2px solid var(--color-border-tertiary);padding-left:6px;margin-top:4px;line-height:1.5}
+.evidence-tag{font-size:11px;color:var(--color-text-secondary);margin-top:4px}
+.item-actions{display:flex;gap:6px;margin-top:8px}
+.btn-na{font-size:11px;padding:3px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);cursor:pointer}
+.btn-na:hover{background:var(--color-background-primary)}
+
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:1.5rem}
+.stat-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;text-align:center}
+.stat-label{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px}
+.stat-val{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.stat-val.good{color:#0F6E56}
+.stat-val.warn{color:#854F0B}
+
+.filter-row{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.filter-row label{font-size:13px;color:var(--color-text-secondary)}
+.filter-row select{font-size:13px;padding:4px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary)}
+
+.gap-row{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 14px;margin-bottom:8px;border-left:3px solid #E24B4A}
+.gap-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.gap-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+
+.action-row{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px 14px;margin-bottom:8px;background:var(--color-background-primary)}
+.action-priority{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;margin-bottom:6px;display:inline-block}
+.p-critical{background:#FCEBEB;color:#A32D2D}
+.p-high{background:#FAEEDA;color:#854F0B}
+.p-medium{background:#E6F1FB;color:#185FA5}
+.p-long{background:#EAF3DE;color:#3B6D11}
+.action-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.action-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+
+.export-btn{font-size:13px;padding:7px 16px;border-radius:var(--border-radius-md);border:0.5px solid #003087;background:#003087;color:#fff;cursor:pointer;margin-right:8px}
+.export-btn:hover{background:#002070}
+</style>
+
+<div class="wrap">
+<div class="topbar">
+  <h1><i class="ti ti-shield-check" aria-hidden="true" style="font-size:18px;margin-right:6px;color:#003087"></i>NHS AI Ethics &amp; Governance Checklist</h1>
+  <span class="badge badge-nhs">NHS Governance Tool</span>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span class="score-text" id="score-text">0 / 0</span>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="stats-row" id="stats-row">
+  <div class="stat-card"><div class="stat-label">Total items</div><div class="stat-val" id="st-total">70</div></div>
+  <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-val good" id="st-done">0</div></div>
+  <div class="stat-card"><div class="stat-label">Not started</div><div class="stat-val warn" id="st-pend">70</div></div>
+  <div class="stat-card"><div class="stat-label">N/A</div><div class="stat-val" id="st-na">0</div></div>
+  <div class="stat-card"><div class="stat-label">Critical gaps</div><div class="stat-val warn" id="st-gaps">0</div></div>
+</div>
+
+<div class="nav" id="nav"></div>
+<div id="sections"></div>
+</div>
+
+<script>
+const SOURCES = {
+  A: "AI Airlock / MHRA Regulatory Sandbox for AIaMD — gov.uk/government/collections/ai-airlock",
+  B: "NHS England IG Guidance on AI — transform.england.nhs.uk/information-governance/guidance/artificial-intelligence",
+  C: "Code of Conduct for Data-Driven Health & Care Technology — gov.uk/government/publications/code-of-conduct-for-data-driven-health-and-care-technology"
+};
+
+const data = [
+  {
+    id:"S1", label:"Strategic Ethics", color:"#534AB7",
+    desc:"Alignment with NHS values, patient benefit, fairness and human-centred principles",
+    items:[
+      {id:"ETH-001",title:"Document a clear, measurable patient or population benefit for the AI system",type:"mandatory",cat:"ethics",risk:"high",source:"C",evidence:"Benefits statement approved by clinical lead",ref:"Code of Conduct Principle 1 — Add value to health and care"},
+      {id:"ETH-002",title:"Demonstrate meaningful patient and public involvement (PPI) in AI design and deployment",type:"mandatory",cat:"ethics",risk:"high",source:"C",evidence:"PPI records, co-design documentation",ref:"Code of Conduct Principle 2 — Be transparent"},
+      {id:"ETH-003",title:"Complete an Equality Impact Assessment (EqIA) addressing all nine protected characteristics under the Equality Act 2010",type:"mandatory",cat:"legal",risk:"high",source:"B",evidence:"Signed EqIA, bias testing results",ref:"NHS England IG AI Guidance — fairness and equity obligations"},
+      {id:"ETH-004",title:"Conduct algorithmic bias testing across demographic subgroups (age, sex, ethnicity, disability)",type:"mandatory",cat:"ethics",risk:"high",source:"C",evidence:"Bias audit report, disaggregated performance metrics",ref:"Code of Conduct Principle 4 — Be fair"},
+      {id:"ETH-005",title:"Ensure AI outputs include appropriate uncertainty quantification communicated to end users",type:"recommended",cat:"ethics",risk:"med",source:"C",evidence:"UX documentation, uncertainty displays in system",ref:"Code of Conduct Principle 2 — Be transparent and explainable"},
+      {id:"ETH-006",title:"Complete a Human Rights Impact Assessment covering Articles 8 (privacy), 14 (non-discrimination) and Article 2 (right to life) where clinically relevant",type:"mandatory",cat:"legal",risk:"high",source:"B",evidence:"Completed HRIA document",ref:"NHS England IG AI Guidance — human rights considerations"},
+      {id:"ETH-007",title:"Define and document the role of human oversight — confirm AI augments rather than replaces clinical judgement",type:"mandatory",cat:"ethics",risk:"high",source:"C",evidence:"Clinical workflow documentation, override capability confirmed",ref:"Code of Conduct Principle 5 — Be accountable"},
+    ]
+  },
+  {
+    id:"S2", label:"NHS Governance", color:"#003087",
+    desc:"Organisational structures, policies, executive accountability and assurance processes",
+    items:[
+      {id:"GOV-001",title:"Establish an AI governance board or sub-committee with documented terms of reference",type:"mandatory",cat:"governance",risk:"high",source:"B",evidence:"Board ToR, meeting minutes",ref:"NHS England IG AI Guidance — governance structures"},
+      {id:"GOV-002",title:"Identify a named executive Senior Responsible Owner (SRO) accountable for the AI system",type:"mandatory",cat:"governance",risk:"high",source:"B",evidence:"Signed accountability statement",ref:"NHS England IG AI Guidance — accountability"},
+      {id:"GOV-003",title:"Maintain a live AI Register documenting all AI systems in deployment across the organisation",type:"mandatory",cat:"governance",risk:"med",source:"B",evidence:"AI system register with version, owner, status fields",ref:"NHS England IG AI Guidance — transparency and AI registers"},
+      {id:"GOV-004",title:"Define roles and responsibilities using a RACI matrix for AI development, deployment and oversight",type:"recommended",cat:"governance",risk:"med",source:"C",evidence:"RACI matrix document",ref:"Code of Conduct Principle 5 — Be accountable"},
+      {id:"GOV-005",title:"Approve and publish an organisational AI Policy with defined review cycle (minimum annual)",type:"mandatory",cat:"governance",risk:"med",source:"B",evidence:"Ratified AI Policy, version control log",ref:"NHS England IG AI Guidance — policy requirements"},
+      {id:"GOV-006",title:"Ensure assurance evidence is retained in auditable form for a minimum of 10 years (clinical records standard) or as defined by retention schedules",type:"mandatory",cat:"governance",risk:"high",source:"B",evidence:"Document retention policy applied to AI governance records",ref:"NHS England IG AI Guidance — auditability"},
+    ]
+  },
+  {
+    id:"S3", label:"Legal & Regulatory", color:"#185FA5",
+    desc:"UK GDPR, DPA 2018, Common Law Duty of Confidentiality, Equality Act, Human Rights Act",
+    items:[
+      {id:"LEG-001",title:"Identify and document the lawful basis for processing personal data under UK GDPR Article 6 and Article 9 (special category health data)",type:"mandatory",cat:"legal",risk:"high",source:"B",evidence:"Lawful basis record, Article 9 condition documented",ref:"NHS England IG AI Guidance — UK GDPR compliance"},
+      {id:"LEG-002",title:"Complete a Data Protection Impact Assessment (DPIA) prior to deployment; obtain DPO sign-off",type:"mandatory",cat:"legal",risk:"high",source:"B",evidence:"Completed and signed DPIA",ref:"NHS England IG AI Guidance — DPIA requirement"},
+      {id:"LEG-003",title:"Assess automated decision-making risks under UK GDPR Article 22; implement safeguards where AI output directly affects care decisions",type:"mandatory",cat:"legal",risk:"high",source:"B",evidence:"Article 22 assessment, human review process documented",ref:"NHS England IG AI Guidance — automated decision-making"},
+      {id:"LEG-004",title:"Demonstrate data minimisation — confirm AI processes only the minimum personal data necessary for its intended purpose",type:"mandatory",cat:"legal",risk:"med",source:"B",evidence:"Data flow mapping, privacy by design review",ref:"NHS England IG AI Guidance — data minimisation principle"},
+      {id:"LEG-005",title:"Address the Common Law Duty of Confidentiality — confirm patient consent or public interest justification where identifiable data is used in AI training or inference",type:"mandatory",cat:"legal",risk:"high",source:"B",evidence:"Legal opinion or Caldicott Guardian sign-off",ref:"NHS England IG AI Guidance — confidentiality obligations"},
+      {id:"LEG-006",title:"Record and evidence compliance with the Data Protection Act 2018 Schedule 1 conditions for processing special category data",type:"mandatory",cat:"legal",risk:"high",source:"B",evidence:"DPA 2018 Schedule 1 condition documented",ref:"NHS England IG AI Guidance — DPA 2018 compliance"},
+      {id:"LEG-007",title:"Conduct a regulatory classification review to determine if the AI system qualifies as a Medical Device (AIaMD) under MHRA regulations",type:"mandatory",cat:"legal",risk:"high",source:"A",evidence:"MHRA classification decision record",ref:"AI Airlock / MHRA — AIaMD regulatory pathway"},
+      {id:"LEG-008",title:"If classified as AIaMD, initiate UKCA/CE marking process or engage with AI Airlock regulatory sandbox for novel AI medical devices",type:"mandatory",cat:"legal",risk:"high",source:"A",evidence:"MHRA registration evidence or AI Airlock enrolment",ref:"AI Airlock — gov.uk regulatory sandbox for AIaMD"},
+    ]
+  },
+  {
+    id:"S4", label:"Clinical Safety", color:"#854F0B",
+    desc:"DCB0129, DCB0160, patient safety standards and clinical incident management",
+    items:[
+      {id:"CS-001",title:"Appoint a qualified Clinical Safety Officer (CSO) as required under DCB0129 (manufacturers) and DCB0160 (deployers)",type:"mandatory",cat:"clinical",risk:"high",source:"B",evidence:"CSO appointment letter, qualifications record",ref:"NHS England IG AI Guidance — clinical safety standards"},
+      {id:"CS-002",title:"Complete a Clinical Safety Case and hazard log under DCB0129 (if developing) and DCB0160 (if deploying)",type:"mandatory",cat:"clinical",risk:"high",source:"B",evidence:"Signed Clinical Safety Case report, hazard log",ref:"NHS England IG AI Guidance — DCB0129/DCB0160"},
+      {id:"CS-003",title:"Implement a mandatory human override mechanism allowing clinicians to reject or escalate AI recommendations",type:"mandatory",cat:"clinical",risk:"high",source:"C",evidence:"System design documentation, override audit trail",ref:"Code of Conduct Principle 5 — human accountability in care"},
+      {id:"CS-004",title:"Define and document escalation pathways for AI system failures or clinically unsafe outputs",type:"mandatory",cat:"clinical",risk:"high",source:"B",evidence:"Escalation procedure, incident response plan",ref:"NHS England IG AI Guidance — safety monitoring"},
+      {id:"CS-005",title:"Establish a clinical incident and near-miss reporting process specific to the AI system, linked to the Trust's risk management framework",type:"mandatory",cat:"clinical",risk:"high",source:"B",evidence:"Incident reporting procedure, integration with Datix or equivalent"},
+      {id:"CS-006",title:"Conduct pre-deployment safety monitoring in the deployment environment under DCB0160",type:"mandatory",cat:"clinical",risk:"high",source:"B",evidence:"Deployment safety assessment report",ref:"NHS England IG AI Guidance — deployment safety"},
+    ]
+  },
+  {
+    id:"S5", label:"AI Model Governance", color:"#0F6E56",
+    desc:"Training data, validation, explainability, drift monitoring and model lifecycle",
+    items:[
+      {id:"MOD-001",title:"Document provenance, demographics and quality of all training data; confirm representativeness for the intended NHS population",type:"mandatory",cat:"governance",risk:"high",source:"C",evidence:"Training data statement, data quality report",ref:"Code of Conduct Principle 4 — be fair; data quality standards"},
+      {id:"MOD-002",title:"Define performance metrics (sensitivity, specificity, AUC, fairness metrics) and minimum acceptable thresholds before deployment",type:"mandatory",cat:"governance",risk:"high",source:"C",evidence:"Model performance specification document",ref:"Code of Conduct — evidence-based deployment"},
+      {id:"MOD-003",title:"Complete independent external validation on a held-out NHS dataset before clinical deployment",type:"mandatory",cat:"governance",risk:"high",source:"C",evidence:"External validation report, independent statistician sign-off",ref:"Code of Conduct Principle 3 — be clinically effective"},
+      {id:"MOD-004",title:"Provide explainability documentation sufficient for clinical users to understand how outputs are generated (model cards or equivalent)",type:"recommended",cat:"ethics",risk:"med",source:"C",evidence:"Model card, explainability report",ref:"Code of Conduct Principle 2 — transparency and explainability"},
+      {id:"MOD-005",title:"Implement real-time drift monitoring with automated alerts when model performance degrades beyond defined thresholds",type:"mandatory",cat:"governance",risk:"high",source:"C",evidence:"Monitoring dashboard, alert configuration",ref:"Code of Conduct — ongoing safety and effectiveness"},
+      {id:"MOD-006",title:"Define a retraining and re-validation protocol triggered by drift detection, population changes or clinical feedback",type:"mandatory",cat:"governance",risk:"med",source:"C",evidence:"Retraining SOP, validation gating criteria",ref:"Code of Conduct — model lifecycle management"},
+      {id:"MOD-007",title:"Implement version control for all model iterations; maintain a model changelog accessible to governance bodies",type:"recommended",cat:"governance",risk:"med",source:"C",evidence:"Version control repository, changelog",ref:"Code of Conduct — auditability requirements"},
+    ]
+  },
+  {
+    id:"S6", label:"DTAC", color:"#3C3489",
+    desc:"NHS Digital Technology Assessment Criteria — clinical safety, data protection, security, interoperability, usability",
+    items:[
+      {id:"DTAC-001",title:"Complete the NHS DTAC Clinical Safety assessment (aligned to DCB0129/DCB0160) and obtain sign-off before procurement or deployment",type:"mandatory",cat:"clinical",risk:"high",source:"B",evidence:"DTAC clinical safety submission, approval record",ref:"NHS England IG AI Guidance — DTAC requirements"},
+      {id:"DTAC-002",title:"Complete the DTAC Data Protection assessment including DPIA; obtain ICO or DPO confirmation",type:"mandatory",cat:"legal",risk:"high",source:"B",evidence:"DTAC DP assessment, DPO sign-off",ref:"NHS England IG AI Guidance — DTAC data protection"},
+      {id:"DTAC-003",title:"Complete the DTAC Technical Security assessment and confirm Cyber Essentials Plus (or equivalent) certification for the supplier",type:"mandatory",cat:"governance",risk:"high",source:"B",evidence:"Cyber Essentials Plus certificate, DTAC security submission"},
+      {id:"DTAC-004",title:"Confirm interoperability with NHS national standards (HL7 FHIR, SNOMED CT, NHS data standards) via DTAC technical assessment",type:"mandatory",cat:"governance",risk:"med",source:"B",evidence:"DTAC interoperability assessment, FHIR conformance statement",ref:"NHS England IG AI Guidance — interoperability standards"},
+      {id:"DTAC-005",title:"Complete DTAC usability and accessibility assessment; confirm WCAG 2.1 AA compliance for all user-facing interfaces",type:"mandatory",cat:"ethics",risk:"med",source:"B",evidence:"Accessibility audit report, DTAC usability submission",ref:"NHS England IG AI Guidance — accessibility and inclusion"},
+    ]
+  },
+  {
+    id:"S7", label:"Cyber Security", color:"#442B7E",
+    desc:"DSPT, NHS Cyber Standards, access control, logging and incident response",
+    items:[
+      {id:"CYB-001",title:"Complete and submit the annual Data Security and Protection Toolkit (DSPT) with 'Standards Met' status",type:"mandatory",cat:"governance",risk:"high",source:"B",evidence:"DSPT submission confirmation, current year status",ref:"NHS England IG AI Guidance — DSPT requirement"},
+      {id:"CYB-002",title:"Implement role-based access controls (RBAC) limiting AI system access to authorised personnel only",type:"mandatory",cat:"governance",risk:"high",source:"B",evidence:"Access control policy, RBAC configuration documentation"},
+      {id:"CYB-003",title:"Enable comprehensive audit logging for all AI system interactions, queries and outputs; logs retained per NHS retention schedules",type:"mandatory",cat:"governance",risk:"high",source:"B",evidence:"Logging configuration, log retention policy"},
+      {id:"CYB-004",title:"Document and test an AI-specific cyber incident response procedure integrated with the organisational IR plan",type:"mandatory",cat:"governance",risk:"high",source:"B",evidence:"IR procedure, annual test record",ref:"NHS England IG AI Guidance — cyber incident management"},
+      {id:"CYB-005",title:"Conduct penetration testing on AI system infrastructure prior to deployment and annually thereafter",type:"mandatory",cat:"governance",risk:"high",source:"B",evidence:"Pen test report, remediation log"},
+    ]
+  },
+  {
+    id:"S8", label:"Procurement & Supplier", color:"#3B6D11",
+    desc:"Supplier assurance, contracts, data processing agreements and third-party risk",
+    items:[
+      {id:"SUP-001",title:"Complete supplier due diligence including review of the supplier's own AI governance framework and ethics policy",type:"mandatory",cat:"governance",risk:"high",source:"C",evidence:"Supplier due diligence checklist, governance evidence received",ref:"Code of Conduct Principle 5 — accountability in supply chain"},
+      {id:"SUP-002",title:"Execute a Data Processing Agreement (DPA) under UK GDPR Article 28 with all AI suppliers processing personal data",type:"mandatory",cat:"legal",risk:"high",source:"B",evidence:"Signed DPA, supplier compliance schedule"},
+      {id:"SUP-003",title:"Ensure contracts include explicit accountability clauses, audit rights, breach notification obligations and AI-specific SLAs",type:"mandatory",cat:"governance",risk:"high",source:"C",evidence:"Contract review sign-off, legal counsel confirmation",ref:"Code of Conduct Principle 5 — contractual accountability"},
+      {id:"SUP-004",title:"Assess and document third-party and supply chain risks including sub-processors and cloud infrastructure providers",type:"mandatory",cat:"governance",risk:"med",source:"B",evidence:"Third-party risk register, sub-processor list"},
+      {id:"SUP-005",title:"Require supplier to provide evidence of compliance with NHS DTAC, Cyber Essentials Plus and MHRA AIaMD classification (if applicable)",type:"mandatory",cat:"governance",risk:"high",source:"B",evidence:"Supplier compliance attestation, certificate copies"},
+    ]
+  },
+  {
+    id:"S9", label:"Risk Management", color:"#993C1D",
+    desc:"Operational risk register, risk scoring and mitigation tracking",
+    items:[
+      {id:"RSK-001",title:"Maintain a live AI-specific risk register reviewed at minimum quarterly by the governance board",type:"mandatory",cat:"governance",risk:"high",source:"B",evidence:"Risk register with date stamps, governance minutes"},
+      {id:"RSK-002",title:"Conduct a formal Privacy Risk Assessment in addition to the DPIA, addressing inference risks, re-identification and data linkage harms",type:"mandatory",cat:"legal",risk:"high",source:"B",evidence:"Privacy risk assessment document"},
+      {id:"RSK-003",title:"Identify and document risks to vulnerable groups (elderly, children, people with mental illness, learning disabilities) from AI outputs or failures",type:"mandatory",cat:"ethics",risk:"high",source:"C",evidence:"Equality and vulnerability risk assessment",ref:"Code of Conduct Principle 4 — protecting vulnerable populations"},
+      {id:"RSK-004",title:"Define risk appetite and tolerance thresholds for AI-related harms; obtain board-level sign-off",type:"recommended",cat:"governance",risk:"med",source:"B",evidence:"Board-approved risk appetite statement"},
+      {id:"RSK-005",title:"Implement a post-deployment benefits realisation review at 3, 6 and 12 months to confirm the AI is delivering intended benefits without unintended harms",type:"recommended",cat:"governance",risk:"med",source:"C",evidence:"Benefits review reports",ref:"Code of Conduct Principle 1 — value and ongoing benefit assessment"},
+    ]
+  },
+  {
+    id:"S10", label:"Transparency & Reporting", color:"#185FA5",
+    desc:"Algorithmic transparency, public reporting, staff disclosure and explainability obligations",
+    items:[
+      {id:"TRN-001",title:"Publish or make available an Algorithmic Transparency Recording Standard (ATRS) entry for the AI system where applicable under NHS/Government guidance",type:"mandatory",cat:"governance",risk:"med",source:"B",evidence:"ATRS entry published on gov.uk transparency platform",ref:"NHS England IG AI Guidance — algorithmic transparency"},
+      {id:"TRN-002",title:"Disclose to patients when AI has materially contributed to a clinical decision affecting their care",type:"mandatory",cat:"ethics",risk:"high",source:"C",evidence:"Patient information leaflet, consent documentation",ref:"Code of Conduct Principle 2 — transparency with patients"},
+      {id:"TRN-003",title:"Train clinical and non-clinical staff on AI system capabilities, limitations and appropriate reliance before deployment",type:"mandatory",cat:"governance",risk:"high",source:"C",evidence:"Training programme, completion records, competency assessment",ref:"Code of Conduct Principle 5 — workforce accountability"},
+      {id:"TRN-004",title:"Produce and publish regular performance and safety monitoring reports for oversight bodies (board, ICB, NHS England as appropriate)",type:"mandatory",cat:"governance",risk:"med",source:"B",evidence:"Performance reports, board submission evidence"},
+      {id:"TRN-005",title:"Maintain an accessible record of AI system updates, retraining events and changes to clinical scope — communicated to relevant clinical stakeholders",type:"recommended",cat:"governance",risk:"med",source:"B",evidence:"Change log, stakeholder communication records"},
+      {id:"TRN-006",title:"Ensure the organisation can respond to Subject Access Requests (SARs) that include AI-generated outputs or decisions within statutory timelines",type:"mandatory",cat:"legal",risk:"med",source:"B",evidence:"SAR procedure updated for AI outputs, tested response protocol",ref:"NHS England IG AI Guidance — data subject rights"},
+    ]
+  }
+];
+
+const state = {};
+let activeSection = 'S1';
+
+function flatItems(){
+  return data.flatMap(s=>s.items);
+}
+
+function updateStats(){
+  const all = flatItems();
+  const done = all.filter(i=>state[i.id]==='checked').length;
+  const na = all.filter(i=>state[i.id]==='na').length;
+  const pend = all.length - done - na;
+  const uncheckedHigh = all.filter(i=>i.risk==='high'&&state[i.id]!=='checked'&&state[i.id]!=='na').length;
+  document.getElementById('st-total').textContent = all.length;
+  document.getElementById('st-done').textContent = done;
+  document.getElementById('st-pend').textContent = pend;
+  document.getElementById('st-na').textContent = na;
+  document.getElementById('st-gaps').textContent = uncheckedHigh;
+  const pct = all.length ? Math.round((done+na)/all.length*100) : 0;
+  document.getElementById('prog').style.width = pct+'%';
+  document.getElementById('score-text').textContent = done+' / '+all.length+' ('+pct+'%)';
+}
+
+function toggleItem(id){
+  if(state[id]==='checked') delete state[id];
+  else state[id]='checked';
+  renderCheckbox(id);
+  updateStats();
+}
+
+function setNA(id){
+  if(state[id]==='na') delete state[id];
+  else state[id]='na';
+  renderCheckbox(id);
+  updateStats();
+}
+
+function renderCheckbox(id){
+  const el = document.getElementById('chk-'+id);
+  if(!el) return;
+  el.className = 'item-check'+(state[id]==='checked'?' checked':state[id]==='na'?' na':'');
+}
+
+function buildNav(){
+  const nav = document.getElementById('nav');
+  data.forEach(s=>{
+    const btn = document.createElement('button');
+    btn.className = 'nav-btn'+(s.id===activeSection?' active':'');
+    btn.id = 'nav-'+s.id;
+    btn.textContent = s.label;
+    btn.onclick = ()=>{
+      activeSection = s.id;
+      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.section').forEach(sec=>sec.classList.remove('visible'));
+      const target = document.getElementById('sec-'+s.id);
+      if(target) target.classList.add('visible');
+    };
+    nav.appendChild(btn);
+  });
+  const gapBtn = document.createElement('button');
+  gapBtn.className = 'nav-btn';
+  gapBtn.id = 'nav-GAP';
+  gapBtn.textContent = 'Gap Analysis';
+  gapBtn.onclick = ()=>{ showGap(gapBtn); };
+  nav.appendChild(gapBtn);
+  const actBtn = document.createElement('button');
+  actBtn.className = 'nav-btn';
+  actBtn.id = 'nav-ACT';
+  actBtn.textContent = 'Action Plan';
+  actBtn.onclick = ()=>{ showAction(actBtn); };
+  nav.appendChild(actBtn);
+}
+
+function buildSections(){
+  const container = document.getElementById('sections');
+  data.forEach(s=>{
+    const sec = document.createElement('div');
+    sec.className = 'section'+(s.id===activeSection?' visible':'');
+    sec.id = 'sec-'+s.id;
+    sec.innerHTML = `<div class="section-header"><h2>${s.label}</h2><p>${s.desc}</p></div>`;
+    s.items.forEach(item=>{
+      const typePill = item.type==='mandatory'?'pill-mandatory':'pill-recommended';
+      const riskPill = item.risk==='high'?'pill-risk-high':item.risk==='med'?'pill-risk-med':'pill-risk-low';
+      const catPill = item.cat==='legal'?'pill-legal':item.cat==='ethics'?'pill-ethics':item.cat==='clinical'?'pill-clinical':'';
+      const sourceLabel = item.source==='A'?'AI Airlock / MHRA':item.source==='B'?'NHS England IG AI':item.source==='C'?'Code of Conduct':'';
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.id = 'item-'+item.id;
+      div.innerHTML = `
+        <div class="item-top">
+          <div class="item-check" id="chk-${item.id}" onclick="toggleItem('${item.id}')"></div>
+          <div class="item-body">
+            <div class="item-id">${item.id}</div>
+            <div class="item-title">${item.title}</div>
+            <div class="item-meta">
+              <span class="pill ${typePill}">${item.type==='mandatory'?'Mandatory':'Recommended'}</span>
+              <span class="pill ${riskPill}">Risk: ${item.risk==='high'?'High':item.risk==='med'?'Medium':'Low'}</span>
+              ${item.cat==='legal'?`<span class="pill ${catPill}">Legal</span>`:''}
+              ${item.cat==='ethics'?`<span class="pill ${catPill}">Ethics</span>`:''}
+              ${item.cat==='clinical'?`<span class="pill ${catPill}">Clinical safety</span>`:''}
+              <span class="pill" style="background:var(--color-background-secondary);color:var(--color-text-secondary)">${sourceLabel}</span>
+            </div>
+            ${item.ref?`<div class="source-ref">${item.ref}</div>`:''}
+            <div class="evidence-tag"><i class="ti ti-file-text" aria-hidden="true" style="font-size:13px;margin-right:4px"></i>Evidence required: ${item.evidence}</div>
+            <div class="item-actions">
+              <button class="btn-na" onclick="setNA('${item.id}')">Mark N/A</button>
+            </div>
+          </div>
+        </div>`;
+      sec.appendChild(div);
+    });
+    container.appendChild(sec);
+  });
+
+  const gapSec = document.createElement('div');
+  gapSec.className = 'section';
+  gapSec.id = 'sec-GAP';
+  container.appendChild(gapSec);
+
+  const actSec = document.createElement('div');
+  actSec.className = 'section';
+  actSec.id = 'sec-ACT';
+  container.appendChild(actSec);
+}
+
+function showGap(btn){
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('visible'));
+  const sec = document.getElementById('sec-GAP');
+  sec.classList.add('visible');
+  const unchecked = flatItems().filter(i=>state[i.id]!=='checked'&&state[i.id]!=='na');
+  const high = unchecked.filter(i=>i.risk==='high');
+  const med = unchecked.filter(i=>i.risk==='med');
+  sec.innerHTML = `<div class="section-header"><h2>Gap analysis</h2><p>${unchecked.length} outstanding items identified — ${high.length} high risk, ${med.length} medium risk</p></div>`;
+  if(unchecked.length===0){sec.innerHTML+='<p style="color:var(--color-text-secondary);font-size:14px">No gaps identified — all items completed or marked N/A.</p>';return;}
+  [...high,...med,unchecked.filter(i=>i.risk==='low')].flat().forEach(item=>{
+    const sLabel = data.find(s=>s.items.find(ii=>ii.id===item.id))?.label||'';
+    const div = document.createElement('div');
+    div.className='gap-row';
+    div.style.borderLeftColor = item.risk==='high'?'#E24B4A':item.risk==='med'?'#EF9F27':'#639922';
+    div.innerHTML=`<div class="gap-title">${item.id} — ${item.title}</div><div class="gap-desc">Section: ${sLabel} · Risk: ${item.risk==='high'?'High':item.risk==='med'?'Medium':'Low'} · Evidence needed: ${item.evidence}</div>`;
+    sec.appendChild(div);
+  });
+}
+
+function showAction(btn){
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('visible'));
+  const sec = document.getElementById('sec-ACT');
+  sec.classList.add('visible');
+  const unchecked = flatItems().filter(i=>state[i.id]!=='checked'&&state[i.id]!=='na'&&i.type==='mandatory');
+  const tiers = [
+    {label:'Critical — 0 to 30 days',cls:'p-critical',items:unchecked.filter(i=>i.risk==='high'&&(i.cat==='legal'||i.cat==='clinical'))},
+    {label:'High priority — 30 to 90 days',cls:'p-high',items:unchecked.filter(i=>i.risk==='high'&&i.cat!=='legal'&&i.cat!=='clinical')},
+    {label:'Medium priority — 3 to 6 months',cls:'p-medium',items:unchecked.filter(i=>i.risk==='med')},
+    {label:'Long-term — 6 to 12 months',cls:'p-long',items:flatItems().filter(i=>state[i.id]!=='checked'&&state[i.id]!=='na'&&i.type==='recommended')},
+  ];
+  sec.innerHTML='<div class="section-header"><h2>Prioritised action plan</h2><p>Derived from outstanding mandatory requirements. Mark items complete in each section to update this plan.</p></div>';
+  tiers.forEach(tier=>{
+    if(tier.items.length===0) return;
+    const head = document.createElement('p');
+    head.style.cssText='font-size:13px;font-weight:500;color:var(--color-text-secondary);margin:1rem 0 6px';
+    head.textContent=tier.label+' ('+tier.items.length+' actions)';
+    sec.appendChild(head);
+    tier.items.forEach(item=>{
+      const div = document.createElement('div');
+      div.className='action-row';
+      const sLabel = data.find(s=>s.items.find(ii=>ii.id===item.id))?.label||'';
+      div.innerHTML=`<span class="action-priority ${tier.cls}">${tier.label.split('—')[0].trim()}</span><div class="action-title">${item.id} — ${item.title}</div><div class="action-desc">Section: ${sLabel} · ${item.evidence}</div>`;
+      sec.appendChild(div);
+    });
+  });
+  if(sec.querySelectorAll('.action-row').length===0){
+    sec.innerHTML+='<p style="color:var(--color-text-secondary);font-size:14px">All mandatory items are completed or marked N/A.</p>';
+  }
+}
+
+buildNav();
+buildSections();
+updateStats();
+</script>
